@@ -394,23 +394,23 @@ O repositório disponibiliza cinco imagens públicas para demonstração e teste
 
 ## Imagem 1
 
-![Imagem de demonstração 1](images/example_image1.jpeg)
+![Imagem de demonstração 1](images/exemple_image1.jpeg)
 
 ## Imagem 2
 
-![Imagem de demonstração 2](images/example_image2.jpeg)
+![Imagem de demonstração 2](images/exemple_image2.jpeg)
 
 ## Imagem 3
 
-![Imagem de demonstração 3](images/example_image3.jpeg)
+![Imagem de demonstração 3](images/exemple_image3.jpeg)
 
 ## Imagem 4
 
-![Imagem de demonstração 4](images/example_image4.jpeg)
+![Imagem de demonstração 4](images/exemple_image4.jpeg)
 
 ## Imagem 5
 
-![Imagem de demonstração 5](images/example_image5.jpeg)
+![Imagem de demonstração 5](images/exemple_image5.jpeg)
 
 Essas imagens podem ser utilizadas diretamente nos exemplos de requisição apresentados neste README.
 
