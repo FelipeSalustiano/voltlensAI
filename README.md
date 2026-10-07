@@ -6,7 +6,7 @@ O projeto transforma um modelo de visão computacional previamente treinado em u
 
 ## Objetivo
 
-O objetivo é disponibilizar o modelo de detecção de medidores como um serviço consumível por outras aplicações.
+O objetivo é disponibilizar o modelo de detecção de medidores como um serviço consumível por outras aplicações, retirando a inferência do ambiente de desenvolvimento e tornando-a acessível por meio de uma API HTTP.
 
 O fluxo da aplicação é:
 
@@ -32,23 +32,23 @@ O serviço recebe uma imagem de um medidor através do endpoint `/predict` e ret
 
 ---
 
-## Modelo utilizado
+# Modelo utilizado
 
-O modelo utilizado é uma rede neural convolucional desenvolvida especificamente para a detecção de medidores.
+O modelo utilizado é uma rede neural convolucional desenvolvida especificamente para a detecção de medidores em imagens.
 
-A arquitetura é composta por camadas convolucionais, funções de ativação ReLU e operações de Max Pooling, finalizando em uma camada convolucional responsável por gerar as informações da detecção.
+A arquitetura `MeterNetwork` foi implementada utilizando **PyTorch** e é composta por camadas convolucionais, funções de ativação ReLU e operações de Max Pooling, finalizando em uma camada convolucional responsável por gerar as informações da detecção.
 
-### - Entrada
+## Entrada
 
-A imagem é:
+A imagem recebida pela API passa pelo seguinte pré-processamento:
 
-1. convertida para RGB;
-2. redimensionada para `360 × 480`;
-3. convertida para escala de cinza;
-4. convertida em tensor;
-5. enviada para o modelo.
+1. conversão para RGB;
+2. redimensionamento para `360 × 480`;
+3. conversão para escala de cinza;
+4. conversão para tensor;
+5. envio para o modelo.
 
-### - Saída
+## Saída
 
 O modelo produz um grid de predições contendo:
 
@@ -60,17 +60,37 @@ O modelo produz um grid de predições contendo:
 
 A melhor predição é selecionada e convertida para coordenadas normalizadas.
 
-### Treinamento
+## Treinamento
 
-O modelo foi treinado anteriormente como parte do projeto de visão computacional.
+O modelo foi desenvolvido e treinado anteriormente como parte do projeto de visão computacional da disciplina, com o objetivo de detectar automaticamente a região do medidor em fotografias.
 
-O checkpoint utilizado neste serviço contém os pesos treinados do `MeterNetwork`.
+O treinamento utilizou imagens rotuladas com bounding boxes da classe `Medidor`.
+
+A arquitetura `MeterNetwork` foi implementada em PyTorch e treinada especificamente para essa tarefa.
+
+O checkpoint utilizado pela API é:
+
+```text
+model/meter_detector.pt
+```
+
+O checkpoint contém os pesos treinados da rede e as informações necessárias para sua utilização durante a inferência.
 
 O serviço não realiza treinamento. Sua responsabilidade é carregar o modelo e disponibilizar a inferência por meio de uma API.
 
+## Características do modelo
+
+* Framework: PyTorch
+* Tipo: Rede Neural Convolucional
+* Tarefa: detecção/localização de medidor
+* Classe detectada: `Medidor`
+* Entrada: imagem
+* Tamanho utilizado pelo modelo: `360 × 480`
+* Saída: bounding box + confiança
+
 ---
 
-## Limitações atuais
+# Limitações atuais
 
 O modelo atualmente realiza **detecção do medidor**.
 
@@ -91,13 +111,16 @@ Além disso, a qualidade da detecção pode variar de acordo com fatores como:
 * distância;
 * enquadramento;
 * oclusões;
-* qualidade da imagem.
+* qualidade da imagem;
+* características do medidor não representadas adequadamente no conjunto de treinamento.
+
+Por esse motivo, o modelo não deve ser considerado um sistema completo de leitura automática de medidores. Nesta versão, seu objetivo é exclusivamente localizar o medidor na imagem.
 
 ---
 
-## Arquitetura do serviço
+# Arquitetura do serviço
 
-O serviço foi desenvolvido utilizando **BentoML**.
+O serviço foi desenvolvido utilizando **BentoML**, com o modelo executado localmente e disponibilizado através de uma API HTTP.
 
 A estrutura principal é:
 
@@ -105,6 +128,14 @@ A estrutura principal é:
 voltlensAI/
 ├── model/
 │   └── meter_detector.pt
+├── images/
+│   ├── exemple_image1.jpeg
+│   ├── exemple_image2.jpeg
+│   ├── exemple_image3.jpeg
+│   ├── exemple_image4.jpeg
+│   └── exemple_image5.jpeg
+├── assets/
+│   └── swagger.png
 ├── src/
 │   └── voltlensai/
 │       ├── __init__.py
@@ -113,10 +144,13 @@ voltlensAI/
 │       └── service.py
 ├── pyproject.toml
 ├── uv.lock
+├── .python-version
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
-### Responsabilidade dos arquivos
+## Responsabilidade dos arquivos
 
 **`model.py`**
 
@@ -124,7 +158,7 @@ Define a arquitetura da rede neural `MeterNetwork`.
 
 **`inference.py`**
 
-Responsável pelo carregamento do checkpoint, pré-processamento da imagem e execução da inferência.
+Responsável pelo carregamento do checkpoint, pré-processamento da imagem, execução da inferência e interpretação da saída do modelo.
 
 **`service.py`**
 
@@ -134,17 +168,45 @@ Expõe o modelo como uma API utilizando BentoML.
 
 Checkpoint contendo os pesos treinados do modelo.
 
+**`images/`**
+
+Contém as imagens públicas utilizadas para demonstração e testes da API.
+
+**`assets/swagger.png`**
+
+Captura da interface Swagger/OpenAPI disponibilizada pelo BentoML durante a execução local do serviço.
+
+**`pyproject.toml`**
+
+Define as dependências e configurações do projeto.
+
+**`uv.lock`**
+
+Registra as versões resolvidas das dependências utilizadas, permitindo uma instalação reproduzível.
+
 ---
 
 # Execução
 
 ## Requisitos
 
-* Python 3.10 ou superior
-* `uv`
-* Git
+Para executar o projeto, são necessários:
 
-A versão do Python utilizada no desenvolvimento deve ser compatível com a versão especificada no `pyproject.toml`.
+* Git;
+* Python na versão especificada em `.python-version`;
+* `uv`.
+
+O projeto foi desenvolvido e testado em ambiente Windows.
+
+## Versão do Python
+
+A versão utilizada no projeto está registrada no arquivo:
+
+```text
+.python-version
+```
+
+O `pyproject.toml` também define a versão mínima compatível do Python.
 
 ---
 
@@ -155,15 +217,21 @@ git clone https://github.com/FelipeSalustiano/voltlensAI.git
 cd voltlensAI
 ```
 
+---
+
 ## 2. Instalar as dependências
 
 O projeto utiliza `uv` para gerenciamento do ambiente e das dependências.
+
+Execute:
 
 ```bash
 uv sync
 ```
 
 O arquivo `uv.lock` está versionado no repositório para garantir uma instalação reproduzível.
+
+A instalação pode levar alguns minutos dependendo da conexão e da máquina, principalmente devido às dependências de PyTorch e torchvision.
 
 ---
 
@@ -181,13 +249,17 @@ Após a inicialização, o serviço estará disponível em:
 http://localhost:3000
 ```
 
+A API permanece executando enquanto o processo estiver ativo.
+
 ---
 
-# Testando pelo Swagger
+# Utilização da API
+
+## Swagger / OpenAPI
 
 O BentoML disponibiliza uma interface Swagger/OpenAPI para interação com o serviço.
 
-Acesse:
+Com o servidor em execução, acesse:
 
 ```text
 http://localhost:3000
@@ -199,15 +271,105 @@ Localize o endpoint:
 POST /predict
 ```
 
-Clique em **Try it out**, selecione uma imagem e execute a requisição.
+Clique em **Try it out**, selecione uma imagem JPEG e execute a requisição.
 
 O serviço processará a imagem e retornará o resultado da detecção.
 
+### Interface Swagger
+
+Abaixo está uma captura da interface disponibilizada pelo BentoML durante a execução local do serviço:
+
+![Interface Swagger da API](assets/swagger.png)
+
 ---
 
-# Exemplo de resposta
+# Testando via cURL
 
-Quando um medidor é detectado, a API retorna:
+Também é possível consumir a API diretamente através de uma requisição HTTP.
+
+Exemplo:
+
+```powershell
+curl.exe -X POST http://localhost:3000/predict `
+  -H "Content-Type: image/jpeg" `
+  --data-binary "@images/exemple_image1.jpeg"
+```
+
+O comando envia a imagem diretamente no corpo da requisição.
+
+---
+
+# Contrato da API
+
+## Endpoint
+
+```text
+POST /predict
+```
+
+## Entrada
+
+A API recebe uma imagem diretamente no corpo da requisição.
+
+Exemplo:
+
+```text
+Content-Type: image/jpeg
+```
+
+Exemplo de chamada:
+
+```powershell
+curl.exe -X POST http://localhost:3000/predict `
+  -H "Content-Type: image/jpeg" `
+  --data-binary "@images/exemple_image1.jpeg"
+```
+
+## Saída
+
+Quando um medidor é detectado, a API retorna um objeto JSON:
+
+```json
+{
+  "detected": true,
+  "confidence": 0.67,
+  "bounding_box": {
+    "center_x": 0.81,
+    "center_y": 0.22,
+    "width": 0.75,
+    "height": 0.57
+  }
+}
+```
+
+Quando nenhum objeto é detectado acima do limiar utilizado pelo serviço:
+
+```json
+{
+  "detected": false,
+  "confidence": 0.0,
+  "bounding_box": null
+}
+```
+
+## Campos da resposta
+
+| Campo        | Descrição                           |
+| ------------ | ----------------------------------- |
+| `detected`   | Indica se um medidor foi detectado  |
+| `confidence` | Confiança da detecção               |
+| `center_x`   | Coordenada X central normalizada    |
+| `center_y`   | Coordenada Y central normalizada    |
+| `width`      | Largura da bounding box normalizada |
+| `height`     | Altura da bounding box normalizada  |
+
+As coordenadas da bounding box são normalizadas entre `0` e `1`, permitindo representar a localização do objeto de forma relativa às dimensões da imagem.
+
+---
+
+# Exemplo de resposta real
+
+Em um teste realizado localmente, a API retornou:
 
 ```json
 {
@@ -222,55 +384,37 @@ Quando um medidor é detectado, a API retorna:
 }
 ```
 
-### Campos
-
-| Campo        | Descrição                           |
-| ------------ | ----------------------------------- |
-| `detected`   | Indica se um medidor foi detectado  |
-| `confidence` | Confiança da detecção               |
-| `center_x`   | Coordenada X central normalizada    |
-| `center_y`   | Coordenada Y central normalizada    |
-| `width`      | Largura da bounding box normalizada |
-| `height`     | Altura da bounding box normalizada  |
-
-As coordenadas da bounding box são normalizadas entre `0` e `1`, para o modelo não ficar preso a uma resolução específica.
+Esse resultado demonstra que o serviço conseguiu carregar o checkpoint, receber uma imagem, executar o pré-processamento, realizar a inferência e retornar uma resposta JSON através do endpoint HTTP.
 
 ---
 
-# Contrato da API
+# Demonstração
 
-### Endpoint
+O repositório disponibiliza cinco imagens públicas para demonstração e teste da API.
 
-```text
-POST /predict
-```
+## Imagem 1
 
-### Entrada
+![Imagem de demonstração 1](images/example_image1.jpeg)
 
-Imagem enviada diretamente no corpo da requisição.
+## Imagem 2
 
-Exemplo:
+![Imagem de demonstração 2](images/example_image2.jpeg)
 
-```text
-Content-Type: image/jpeg
-```
+## Imagem 3
 
-### Saída
+![Imagem de demonstração 3](images/example_image3.jpeg)
 
-Objeto JSON contendo:
+## Imagem 4
 
-```json
-{
-  "detected": true,
-  "confidence": 0.67,
-  "bounding_box": {
-    "center_x": 0.81,
-    "center_y": 0.22,
-    "width": 0.75,
-    "height": 0.57
-  }
-}
-```
+![Imagem de demonstração 4](images/example_image4.jpeg)
+
+## Imagem 5
+
+![Imagem de demonstração 5](images/example_image5.jpeg)
+
+Essas imagens podem ser utilizadas diretamente nos exemplos de requisição apresentados neste README.
+
+As imagens incluídas no repositório são destinadas exclusivamente à demonstração do serviço e não devem conter dados de clientes ou informações operacionais privadas.
 
 ---
 
@@ -302,8 +446,11 @@ Entre as possíveis melhorias estão:
 * tratamento de diferentes condições de iluminação;
 * aumento e diversificação do dataset;
 * avaliação com métricas específicas de detecção;
+* ajuste do limiar de confiança;
 * monitoramento das inferências;
-* versionamento dos modelos.
+* versionamento dos modelos;
+* criação de testes automatizados;
+* acompanhamento de métricas de desempenho do modelo em produção.
 
 ---
 
@@ -319,7 +466,7 @@ A IA foi utilizada principalmente para:
 * identificação e correção de problemas de integração;
 * apoio na elaboração da documentação.
 
-Todo o código utilizado no projeto foi revisado e validado durante a execução local do serviço.
+As sugestões geradas foram analisadas e adaptadas ao projeto. Todo o código utilizado no projeto foi revisado e validado durante a execução local do serviço.
 
 A utilização de IA não substituiu a compreensão e validação do funcionamento do código.
 
