@@ -1,0 +1,19 @@
+[project]
+name = "voltlensai"
+version = "0.1.0"
+description = "API de inferência para detecção de medidores de energia em imagens"
+readme = "README.md"
+authors = [
+    { name = "Felipe Salustiano", email = "piposalumoreira@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "bentoml>=1.4.39",
+    "pillow>=12.3.0",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
