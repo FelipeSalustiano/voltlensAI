@@ -122,11 +122,13 @@ voltlensAI/
 │   └── exemple_image5.jpeg
 ├── assets/
 │   └── swagger.png
+├── documents/
+│   └── VoltLens Analysis.xlsx
 ├── logs/
 │   └── inference.log              # Gerado durante a execução
 ├── notebooks/
 │   └── voltlensai_log_analysis.ipynb
-├── scripts/
+├── utils/
 │   └── load_test.py
 ├── src/
 │   └── voltlensai/
@@ -156,7 +158,7 @@ voltlensAI/
 | `model/meter_detector.pt` | Checkpoint com os pesos treinados. |
 | `images/` | Imagens públicas para demonstração e testes. |
 | `assets/swagger.png` | Captura da interface Swagger/OpenAPI. |
-| `scripts/load_test.py` | Executa uma sequência de requisições com imagens originais, variações de brilho/contraste e payloads inválidos. |
+| `utils/load_test.py` | Executa uma sequência de requisições com imagens originais, variações de brilho/contraste e payloads inválidos. |
 | `notebooks/voltlensai_log_analysis.ipynb` | Analisa os registros, gera estatísticas e visualizações de latência, confiança, volume e erros. |
 | `pyproject.toml` | Define dependências e configurações. |
 | `uv.lock` | Registra versões resolvidas das dependências. |
@@ -381,7 +383,7 @@ O histograma também disponibiliza séries auxiliares, como `_bucket`, `_sum` e 
 
 ## Teste de carga e comportamento
 
-O script `scripts/load_test.py` executa uma sequência de requisições para observar o comportamento da API.
+O script `utils/load_test.py` executa uma sequência de requisições para observar o comportamento da API.
 
 O cenário implementado utiliza:
 
@@ -392,7 +394,7 @@ O cenário implementado utiliza:
 Mantenha o serviço em execução em um terminal e, em outro, execute:
 
 ```bash
-uv run python scripts/load_test.py
+uv run python utils/load_test.py
 ```
 
 Esse cenário realiza requisições sequenciais. Portanto, trata-se de um teste funcional com volume de requisições, não de um teste de estresse concorrente.
