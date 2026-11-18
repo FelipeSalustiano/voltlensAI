@@ -125,7 +125,9 @@ voltlensAI/
 ├── documents/
 │   └── VoltLens Analysis.xlsx
 ├── logs/
-│   └── inference.log              # Gerado durante a execução
+│   ├── inference_analysis.csv     # Artefato de análise exportado manualmente no notebook
+│   ├── inference.log              # Gerado durante a execução
+│   └── metrics_predict.txt        # Exemplo de saída do endpoint /metrics
 ├── notebooks/
 │   └── voltlensai_log_analysis.ipynb
 ├── utils/
@@ -158,6 +160,7 @@ voltlensAI/
 | `model/meter_detector.pt` | Checkpoint com os pesos treinados. |
 | `images/` | Imagens públicas para demonstração e testes. |
 | `assets/swagger.png` | Captura da interface Swagger/OpenAPI. |
+| `logs/metrics_predict.txt` | Exemplo de saída do endpoint `/metrics`, registrando as métricas coletadas durante o teste de carga. |
 | `utils/load_test.py` | Executa uma sequência de requisições com imagens originais, variações de brilho/contraste e payloads inválidos. |
 | `notebooks/voltlensai_log_analysis.ipynb` | Analisa os registros, gera estatísticas e visualizações de latência, confiança, volume e erros. |
 | `pyproject.toml` | Define dependências e configurações. |
